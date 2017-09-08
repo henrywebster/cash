@@ -1,6 +1,11 @@
 # source file
 cash
 
+# emacs temporary files
+*~
+
+# -- GitHub template below -- #
+
 # Prerequisites
 *.d
 
