@@ -1,38 +1,59 @@
 #include <stdio.h>
+#include <unistd.h>
+#include <dirent.h>
 
 #define BUFFER_SIZE 256
+#define PROMPT_SIZE 6
 
-int getinput(char[]);
+const char * PROMPT_TEXT = "ca$h> ";
+
+void C$_Prompt(void);
+void C$_LS(void);
+ssize_t C$_Getline(char *, unsigned);
+int C$_Parse(const char[]);
 
 int main(int argc, char * argv[])
 {
 
-    int i = 1;
     char buffer[BUFFER_SIZE];
-    char * garbage;
-
-    while (i > 0)
-    {
-	/* the prompt */
-	printf("ca$h> ");
-
-	/* read input */
-	i = getinput(buffer);
-    }
+    ssize_t size = 1;
     
+    while (size > 0)
+    {
+
+	C$_Prompt();
+	size = C$_Getline(buffer, BUFFER_SIZE);
+
+    }
+//	size = read(STDIN_FILENO, buffer, BUFFER_SIZE);
+//	write(STDOUT_FILENO, buffer, size);
+
+
+    C$_LS();
+
+	
+
+
+
     return 0;
 }
 
-int getinput(char s[])
+void C$_Prompt(void)
 {
-    int i, c;
+    write(STDOUT_FILENO, PROMPT_TEXT, PROMPT_SIZE);
+}
 
-    for (i = 0; (c = getchar()) != EOF; i++)
+void C$_LS(void)
+{
+    DIR * d = opendir(".");
+    struct dirent * direntry;
+    while ((direntry = readdir(d)) != 0)
     {
-	if ('\n' == c)
-	   break;
-	s[i] = c;
+	printf("%s\n", direntry->d_name);
     }
-    s[i] = '\0';
-    return i;
+}
+
+ssize_t C$_Getline(char * buffer, unsigned size)
+{
+    return read(STDIN_FILENO, buffer, size);
 }
