@@ -49,12 +49,13 @@ int C$_Parse(const char input[], char ** arglist, unsigned max)
     /* go through and put space-seperated into different new array */
     // add const to arglist?
     
-    int c, n;
+    int c;
+    int n = 0;
 
     int starti = 0;
     int i = 0;
     int span;
-	printf("%s \n", input);
+	//printf("%s \n", input);
     //for (c = input[0], n = 0, i=0; input[i] != '\0'; i++)
     while (input[i] != '\0')
     {
@@ -64,9 +65,13 @@ int C$_Parse(const char input[], char ** arglist, unsigned max)
 	
 		for(starti = i; input[i] != ' ' && input[i] != '\0' && input[i] != '\n'; i++)
 			;
-		span = i-starti;
-		printf("%d \n", span);
-
+		if ((span = i-starti) >0){
+		arglist[n] = (char*) malloc(sizeof(char)*(span+1));
+		memcpy(arglist[n], input+starti, span);
+		arglist[n][span+1]='\0';
+		printf("%d:%s \n", n, arglist[n]);
+		n++;
+		}
 		
 	    
 	    //C$_Putline(STDOUT_FILENO, input);
