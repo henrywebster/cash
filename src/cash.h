@@ -12,5 +12,6 @@ void C$_LS(const char dname[]);
 ssize_t C$_Getline(char *, unsigned);
 void C$_Putline(int, const char[]);
 int C$_Parse(const char[], char **, unsigned);
+int C$_Chdir(const char*);
 
 #endif

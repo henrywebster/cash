@@ -15,6 +15,9 @@ int main(int argv, char * argc[])
 	if(strcmp ("ls", argbuffer[0])==0){
 		C$_LS(argbuffer[1]);
 	}
+	if(strcmp ("cd", argbuffer[0])==0){
+		C$_Chdir(argbuffer[1]);
+    }
     }
 
     return 0;

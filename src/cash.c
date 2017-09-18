@@ -15,7 +15,9 @@ void C$_Prompt(void)
 
 void C$_LS(const char dname[])
 {
-    
+    if (dname ==0){
+    	dname = ".";
+    }
     DIR * d = opendir(dname);
     struct dirent * direntry;
     while ((direntry = readdir(d)) != 0)
@@ -78,6 +80,10 @@ int C$_Parse(const char input[], char ** arglist, unsigned max)
 	}    
     return 0;
 }
-    
+
+int C$_Chdir(const char* dirname){
+	return chdir(dirname);
+
+}
 	    
     
