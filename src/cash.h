@@ -3,7 +3,7 @@
 
 #include <unistd.h>
 
-#define C$_BUFFER_SIZE 256
+#define C$_BUFFER_SIZE 1024
 #define C$_PROMPT_SIZE 6
 #define C$_MAX_ARGS 32
 

@@ -9,6 +9,7 @@ int main(int argv, char * argc[])
     {
 	C$_Prompt();
 	size = C$_Getline(buffer, C$_BUFFER_SIZE);
+	C$_Parse(buffer, 0, size);
     }
 
     return 0;

@@ -27,15 +27,17 @@ void C$_LS(const char dname[])
 
 ssize_t C$_Getline(char * buffer, unsigned size)
 {
-    read(STDIN_FILENO, buffer, size);
+    ssize_t input = read(STDIN_FILENO, buffer, size);
+    buffer[input] = '\0';
+    return input;
 }
 
 void C$_Putline(int fildes, const char line[])
 {
-    int c, i;
+    int i;
     const char * pc = line;
 
-    for (; *pc != '\0'; pc++, i++)
+    for (i=0; *pc != '\0'; pc++, i++)
 	;
     
     write(fildes, line, i);
@@ -47,21 +49,29 @@ int C$_Parse(const char input[], char ** arglist, unsigned max)
     /* go through and put space-seperated into different new array */
     // add const to arglist?
     
-    int c, i, n;
+    int c, n;
 
     int starti = 0;
-
-    for (c = input[i], n = 0; input[i] != '\0'; i++)
+    int i = 0;
+    int span;
+	printf("%s \n", input);
+    //for (c = input[0], n = 0, i=0; input[i] != '\0'; i++)
+    while (input[i] != '\0')
     {
-	if (c == ' ')
-	{
-	    int span = i - starti;
-	    arglist[n] = (char *) malloc(sizeof(char) * span + 1);
-	    memcpy(arglist[n], input + i, span);
-	    C$_Putline(STDOUT_FILENO, arglist[n]);
-	    arglist[n++][span + 1] = '\n';
-	}
-    }
+    	for (; input[i] == ' '; i++)
+    	;
+    
+	
+		for(starti = i; input[i] != ' ' && input[i] != '\0'; i++)
+			;
+		span = i-starti;
+		printf("%d \n", span);
+
+		
+	    
+	    //C$_Putline(STDOUT_FILENO, input);
+	}    
+    return 0;
 }
     
 	    
