@@ -58,11 +58,11 @@ int C$_Parse(const char input[], char ** arglist, unsigned max)
     //for (c = input[0], n = 0, i=0; input[i] != '\0'; i++)
     while (input[i] != '\0')
     {
-    	for (; input[i] == ' '; i++)
+    	for (; input[i] == ' ' || input[i] == '\n'; i++)
     	;
     
 	
-		for(starti = i; input[i] != ' ' && input[i] != '\0'; i++)
+		for(starti = i; input[i] != ' ' && input[i] != '\0' && input[i] != '\n'; i++)
 			;
 		span = i-starti;
 		printf("%d \n", span);
