@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <dirent.h>
 #include <string.h>
+#include <errno.h>
+
 
 #include "cash.h"
 
@@ -82,6 +84,10 @@ int C$_Parse(const char input[], char ** arglist, unsigned max)
 }
 
 int C$_Chdir(const char* dirname){
+	if(chdir(dirname) == -1){
+	if (errno == ENOENT)
+		printf("ERROR: does not exist \n", errno);
+	}
 	return chdir(dirname);
 
 }
