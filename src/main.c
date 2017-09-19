@@ -28,7 +28,6 @@ int main(int argv, char * argc[])
 	for (i = 0; i < 8; i++)
 	{
 	    printf("Current arg buffer: %p:\n", argbuffer + i);
-	    if (argbuffer[i]);
 	    printf("%p: %s\n", argbuffer[i], argbuffer[i]);
 	}
 

@@ -82,8 +82,8 @@ int C$_Parse(const char input[], char ** arglist, unsigned max)
 	if ((span = i-starti) > 0)
 	{
 	    arglist[n] = (char*) malloc(sizeof(char)*(span+1));
-	    memcpy(arglist[n], input+starti, span);
-	    arglist[n][span+1]='\0';
+	    memcpy(arglist[n], input+starti, span+1);
+	    arglist[n][span]='\0';
 	    printf("[%d]%d: %s\n", n, span, arglist[n]);
 	    n++;
 	}
