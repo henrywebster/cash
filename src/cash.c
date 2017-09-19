@@ -84,11 +84,28 @@ int C$_Parse(const char input[], char ** arglist, unsigned max)
 }
 
 int C$_Chdir(const char* dirname){
+
 	if(chdir(dirname) == -1){
-	if (errno == ENOENT)
-		printf("ERROR: does not exist \n", errno);
+		if (errno == ENOENT)
+		{
+			printf("ERROR: does not exist \n", errno);
+		}
+		if (errno == EACCES){
+			printf("ERROR: search permission denied \n", errno);
+		}
+		if (errno == ELOOP){
+			printf("ERROR: too many symbolic links in resolving path \n", errno);
+		}
+		if (errno == ENAMETOOLONG){
+			printf("ERROR: path too long \n", errno);
+		}
+		if (errno == ENOTDIR){
+			printf("ERROR: not a directory \n", errno);	
+		}
 	}
 	return chdir(dirname);
+
+
 
 }
 	    
