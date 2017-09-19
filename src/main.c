@@ -23,13 +23,25 @@ int main(int argv, char * argc[])
 	if(strcmp ("cd", argbuffer[0])==0){
 		C$_Chdir(argbuffer[1]);	
 	}
+	
+	if(strcmp ("ln", argbuffer[0])==0){
+		C$_LN(argbuffer[1], argbuffer[2]);	
+	}
+	
+	if(strcmp ("rm", argbuffer[0])==0){
+		C$_RM(argbuffer[1]);
+	}
+	if(strcmp ("exit", argbuffer[0])==0){
+		return 0;	
+	}
 
-	int i;
+
+	/*int i;
 	for (i = 0; i < 8; i++)
 	{
 	    printf("Current arg buffer: %p:\n", argbuffer + i);
 	    printf("%p: %s\n", argbuffer[i], argbuffer[i]);
-	}
+	}*/
 
 	C$_ClearArgs(argbuffer, numArgs);
     }

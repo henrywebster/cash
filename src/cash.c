@@ -3,6 +3,7 @@
 #include <dirent.h>
 #include <string.h>
 #include <errno.h>
+#include <unistd.h>
 
 
 #include "cash.h"
@@ -12,7 +13,9 @@ const char * NEW_LINE = "\n";
 
 void C$_Prompt(void)
 {
+	#ifndef NO_PROMPT
     write(STDOUT_FILENO, C$_PROMPT_TEXT, C$_PROMPT_SIZE);
+    #endif
 }
 
 void C$_LS(const char dname[])
@@ -79,12 +82,14 @@ int C$_Parse(const char input[], char ** arglist, unsigned max)
 	    ;
 
 	// if it is larger than 0, copy the string into the arg list
+	
+	
 	if ((span = i-starti) > 0)
 	{
 	    arglist[n] = (char*) malloc(sizeof(char)*(span+1));
 	    memcpy(arglist[n], input+starti, span+1);
 	    arglist[n][span]='\0';
-	    printf("[%d]%d: %s\n", n, span, arglist[n]);
+	    //printf("[%d]%d: %s\n", n, span, arglist[n]);
 	    n++;
 	}
     }    
@@ -106,24 +111,21 @@ int C$_Chdir(const char* dirname){
 
 
     if(chdir(dirname) == -1){
-	if (errno == ENOENT)
-	{
-	    C$_Putline(STDERR_FILENO, "ERROR: does not exist");
-	}
-	if (errno == EACCES){
-	    C$_Putline(STDERR_FILENO, "ERROR: search permission denied");
-	}
-	if (errno == ELOOP){
-	    C$_Putline(STDERR_FILENO, "ERROR: too many symbolic links in resolving path \n");
-	}
-	if (errno == ENAMETOOLONG){
-	    C$_Putline(STDERR_FILENO, "ERROR: path too long");
-	}
-	if (errno == ENOTDIR){
-	    C$_Putline(STDERR_FILENO, "ERROR: not a directory");	
-	}
+    	perror("CD Ca$h Error");
     }
     return chdir(dirname);
 }
+
+int C$_LN(const char* input, const char* lnk){
+	if(link(input, lnk) == -1){
+    	perror("LN Ca$h Error");
+    }
+	return link(input, lnk);
+}
 	    
-    
+int C$_RM(const char* input){
+	if(remove(input)==-1){
+		perror("RM Ca$h Error");
+	}
+	return remove(input);
+}
