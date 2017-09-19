@@ -17,16 +17,26 @@ void C$_Prompt(void)
 
 void C$_LS(const char dname[])
 {
-    if (dname ==0){
+
+    printf("DNAME: %s\n", dname);
+    if (!dname){
     	dname = ".";
     }
-    DIR * d = opendir(dname);
+    DIR * d;
+    if ((d = opendir(dname)) == 0)
+    {
+	perror("ERROR in LS");
+    }
+    else
+    {
     struct dirent * direntry;
     while ((direntry = readdir(d)) != 0)
     {
 	C$_Putline(STDOUT_FILENO, direntry->d_name);
+
     }
     closedir(d);
+    }
 }
 
 ssize_t C$_Getline(char * buffer, unsigned size)
@@ -50,63 +60,70 @@ void C$_Putline(int fildes, const char line[])
 
 int C$_Parse(const char input[], char ** arglist, unsigned max)
 {
-    /* go through and put space-seperated into different new array */
-    // add const to arglist?
+    /* go through and put space-seperated into different new array, return num words */
+
     
-    int c;
     int n = 0;
 
     int starti = 0;
     int i = 0;
     int span;
-	//printf("%s \n", input);
-    //for (c = input[0], n = 0, i=0; input[i] != '\0'; i++)
+
     while (input[i] != '\0')
     {
+	// skip over spaces and newlines
     	for (; input[i] == ' ' || input[i] == '\n'; i++)
-    	;
-    
-	
-		for(starti = i; input[i] != ' ' && input[i] != '\0' && input[i] != '\n'; i++)
-			;
-		if ((span = i-starti) >0){
-		arglist[n] = (char*) malloc(sizeof(char)*(span+1));
-		memcpy(arglist[n], input+starti, span);
-		arglist[n][span+1]='\0';
-		//printf("%d:%s \n", n, arglist[n]);
-		n++;
-		}
-		
-	    
-	    //C$_Putline(STDOUT_FILENO, input);
-	}    
-    return 0;
+	    ;
+	// find the start and end index of the next word
+	for(starti = i; input[i] != ' ' && input[i] != '\0' && input[i] != '\n'; i++)
+	    ;
+
+	// if it is larger than 0, copy the string into the arg list
+	if ((span = i-starti) > 0)
+	{
+	    arglist[n] = (char*) malloc(sizeof(char)*(span+1));
+	    memcpy(arglist[n], input+starti, span);
+	    arglist[n][span+1]='\0';
+	    printf("[%d]%d: %s\n", n, span, arglist[n]);
+	    n++;
+	}
+    }    
+    return n;
 }
+
+void C$_ClearArgs(char ** arglist, unsigned length)
+{
+    unsigned i;
+    for (i = 0; i < length; i++)
+    {
+	free(arglist[i]);
+	arglist[i] = 0;
+    }
+}
+
 
 int C$_Chdir(const char* dirname){
 
-	if(chdir(dirname) == -1){
-		if (errno == ENOENT)
-		{
-			printf("ERROR: does not exist \n", errno);
-		}
-		if (errno == EACCES){
-			printf("ERROR: search permission denied \n", errno);
-		}
-		if (errno == ELOOP){
-			printf("ERROR: too many symbolic links in resolving path \n", errno);
-		}
-		if (errno == ENAMETOOLONG){
-			printf("ERROR: path too long \n", errno);
-		}
-		if (errno == ENOTDIR){
-			printf("ERROR: not a directory \n", errno);	
-		}
+
+    if(chdir(dirname) == -1){
+	if (errno == ENOENT)
+	{
+	    C$_Putline(STDERR_FILENO, "ERROR: does not exist");
 	}
-	return chdir(dirname);
-
-
-
+	if (errno == EACCES){
+	    C$_Putline(STDERR_FILENO, "ERROR: search permission denied");
+	}
+	if (errno == ELOOP){
+	    C$_Putline(STDERR_FILENO, "ERROR: too many symbolic links in resolving path \n");
+	}
+	if (errno == ENAMETOOLONG){
+	    C$_Putline(STDERR_FILENO, "ERROR: path too long");
+	}
+	if (errno == ENOTDIR){
+	    C$_Putline(STDERR_FILENO, "ERROR: not a directory");	
+	}
+    }
+    return chdir(dirname);
 }
 	    
     
