@@ -13,6 +13,7 @@ int main(int argc, char * argv[])
     char * argbuffer[8];
 
     char * infile = 0;
+    char * outfile = 0;
 
     memset(argbuffer, '\0', sizeof(char*) * 8);
     memset(eargv, '\0', sizeof(char *) * 8);
@@ -36,7 +37,11 @@ int main(int argc, char * argv[])
 	    break;
 	}
 	
-	numArgs = C$_Parse(buffer, argbuffer, size, &infile);
+	numArgs = C$_Parse(buffer, argbuffer, size, &infile, &outfile);
+
+	int j = 0;
+	for (; j < 8; j++)
+	    printf("%d %s\n", j, argbuffer[j]);
 
 	short pid;
 	if (!(pid = fork()))
@@ -47,7 +52,7 @@ int main(int argc, char * argv[])
 		eargv[i] = argbuffer[i];
 
 	    // there is something in the in redirect but it can't open: abort
-	    if (infile && C$_Redirect(infile))
+	    if ((infile || outfile) && C$_Redirect(infile, outfile))
 		exit(0);
 	    else
 		execv(argbuffer[0], eargv);
@@ -93,6 +98,9 @@ int main(int argc, char * argv[])
 
 	free(infile);
 	infile = 0;
+
+	free(outfile);
+	outfile = 0;
 
 	C$_Prompt();
 	C$_Clrbuffs(numArgs, argbuffer, eargv);

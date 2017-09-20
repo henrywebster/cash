@@ -50,9 +50,9 @@ void C$_Putline(int fildes, const char line[])
     write(fildes, NEW_LINE, 1);
 }
 
-int C$_Parse(const char input[], char ** arglist, unsigned max, char ** infile)
+int C$_Parse(const char input[], char ** arglist, unsigned max, char ** infile, char ** outfile)
 {
-    /* go through and put space-seperated into different new array, return num words */    
+    /* go through and put space-seperated into different new array, return num words */
     int n = 0;
 
     int starti, endi, i, span;
@@ -61,35 +61,37 @@ int C$_Parse(const char input[], char ** arglist, unsigned max, char ** infile)
     i = 0;
     span = 0;
 
-    int redirectFlag = 0;
+    int inflag = 0;
+    int outflag = 0;
 
     while (input[i] != '\0')
     {
 	// skip over spaces and newlines
-    	for (; input[i] == ' ' || input[i] == '\n'; i++)
+    	for (; input[i] == ' ' || input[i] == '\n' || input[i] == '\t'; i++)
 	    ;
 	// find the start and end index of the next word
-	for(starti = i; input[i] != ' ' && input[i] != '\0' && input[i] != '\n'; i++, endi = i)
-	{	   
-	    if (input[i] == '<')
-	    {
-		endi = i;
-		i++;
-		redirectFlag = 1;
-		break;
-	    }
-	}
+	for(starti = i; input[i] != '<' && input[i] != '>' && input[i] != ' ' && input[i] != '\0' && input[i] != '\n' && input[i] != '\t'; i++, endi = i)
+	    ;
+
 
 	// if it is larger than 0, copy the string into the arg list       	
 	if ((span = endi - starti) > 0)
 	{
-	if (redirectFlag == 1)
+	if (inflag == 1)
 	{
 	    free(*infile);
 	    *infile = (char *) malloc(sizeof(char) * (span + 1));
 	    memcpy(*infile, input + starti, span + 1);
 	    *(*infile + span) = '\0';
-	    redirectFlag = 0;
+	    inflag = -1;
+	}
+	else if (outflag == 1)
+	{
+	    free(*outfile);
+	    *outfile = (char *) malloc(sizeof(char) * (span + 1));
+	    memcpy(*outfile, input + starti, span + 1);
+	    *(*outfile + span) = '\0';
+	    outflag = -1;
 	}
 	else
 	{
@@ -99,22 +101,46 @@ int C$_Parse(const char input[], char ** arglist, unsigned max, char ** infile)
 	    n++;
 	}
 	}
+
+	if (input[i] == '<')
+	{
+	    endi = i;
+	    i++;
+	    inflag = 1;
+	}
+	if (input[i] == '>')
+	{
+	    endi = i;
+	    i++;
+	    outflag = 1;
+	}
     }    
     
     return n;
 }
 
-int C$_Redirect(const char const * infile)
+int C$_Redirect(const char const * infile, const char const * outfile)
 {
     printf("my input: %s\n", infile);
     int fi;
+    if (infile)
+    {
     close(STDIN_FILENO);
     if ((fi = open(infile, O_RDONLY) == -1))
     {
 	perror("ca$h ERROR: Cannot redirect input");
 	return -1;
     }
-
+    }
+    if (outfile)
+    {
+    close(STDOUT_FILENO);
+    if ((fi = open(outfile, O_CREAT | O_WRONLY, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH) == -1))
+    {
+	perror("ca$h ERROR: Cannot redirect output");
+	return -1;
+    }
+    }
     return 0;
 }
 
