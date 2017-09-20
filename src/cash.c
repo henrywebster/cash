@@ -18,30 +18,6 @@ void C$_Prompt(void)
     #endif
 }
 
-void C$_LS(const char dname[])
-{
-
-    printf("DNAME: %s\n", dname);
-    if (!dname){
-    	dname = ".";
-    }
-    DIR * d;
-    if ((d = opendir(dname)) == 0)
-    {
-	perror("ERROR in LS");
-    }
-    else
-    {
-    struct dirent * direntry;
-    while ((direntry = readdir(d)) != 0)
-    {
-	C$_Putline(STDOUT_FILENO, direntry->d_name);
-
-    }
-    closedir(d);
-    }
-}
-
 ssize_t C$_Getline(char * buffer, unsigned size)
 {
     ssize_t input = read(STDIN_FILENO, buffer, size);
@@ -68,9 +44,10 @@ int C$_Parse(const char input[], char ** arglist, unsigned max)
     
     int n = 0;
 
-    int starti = 0;
-    int i = 0;
-    int span;
+    int starti, i, span;
+    starti = 0;
+    i = 0;
+    span = 0;
 
     while (input[i] != '\0')
     {
@@ -82,33 +59,32 @@ int C$_Parse(const char input[], char ** arglist, unsigned max)
 	    ;
 
 	// if it is larger than 0, copy the string into the arg list
-	
-	
-	if ((span = i-starti) > 0)
+       	
+	if ((span = i - starti) > 0)
 	{
-	    arglist[n] = (char*) malloc(sizeof(char)*(span+1));
-	    memcpy(arglist[n], input+starti, span+1);
+	    arglist[n] = (char *) malloc(sizeof(char) * (span + 1));
+	    memcpy(arglist[n], input + starti, span + 1);
 	    arglist[n][span]='\0';
-	    //printf("[%d]%d: %s\n", n, span, arglist[n]);
 	    n++;
 	}
     }    
     return n;
 }
 
-void C$_ClearArgs(char ** arglist, unsigned length)
-{
+void C$_Clrbuffs(unsigned length, char ** arglist, char ** eargv)
+{// wipe the input buffers and stop memory leaks
+
     unsigned i;
     for (i = 0; i < length; i++)
     {
 	free(arglist[i]);
+	eargv[i] = 0;
 	arglist[i] = 0;
     }
 }
 
-
+/* builtin functions */
 int C$_Chdir(const char* dirname){
-
 
     if(chdir(dirname) == -1){
     	perror("CD Ca$h Error");
@@ -116,16 +92,20 @@ int C$_Chdir(const char* dirname){
     return chdir(dirname);
 }
 
-int C$_LN(const char* input, const char* lnk){
-	if(link(input, lnk) == -1){
-    	perror("LN Ca$h Error");
-    }
+int C$_Link(const char* input, const char* lnk)
+{
+	if(link(input, lnk) == -1)
+	{
+	    perror("ca$h: ERROR link");
+	}
 	return link(input, lnk);
 }
 	    
-int C$_RM(const char* input){
-	if(remove(input)==-1){
-		perror("RM Ca$h Error");
+int C$_Remove(const char* input)
+{
+	if (remove(input) == -1)
+	{
+		perror("ca$h ERROR remove");
 	}
 	return remove(input);
 }
