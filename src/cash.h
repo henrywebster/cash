@@ -7,8 +7,10 @@
 #define C$_PROMPT_SIZE 6
 #define C$_MAX_ARGS 32
 
+enum rflag {DONE, WAIT};
+
 void C$_Prompt(void);
-ssize_t C$_Getline(char *, unsigned);
+ssize_t C$_Getline(char *, unsigned, ssize_t, enum rflag *);
 void C$_Putline(int, const char[]);
 int C$_Parse(const char[], char **, unsigned);
 void C$_Clrbuffs(unsigned, char **, char **);

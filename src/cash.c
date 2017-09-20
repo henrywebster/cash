@@ -18,11 +18,26 @@ void C$_Prompt(void)
     #endif
 }
 
-ssize_t C$_Getline(char * buffer, unsigned size)
+ssize_t C$_Getline(char * buffer, unsigned size, ssize_t offset, enum rflag * flag)
 {
-    ssize_t input = read(STDIN_FILENO, buffer, size);
-    buffer[input] = '\0';
-    return input;
+    ssize_t input = read(STDIN_FILENO, buffer + offset, size);
+  
+  //printf("%u\n", buffer[input + offset - 1]);
+    if (buffer[input + offset - 1] != '\n')
+       {
+	buffer[input + offset] = '\n';
+	input += 1;
+//	printf("CTRL-D PRESSED\n");
+	*flag = WAIT;
+    }
+    else
+    {
+	buffer[input + offset] = '\0';
+//	printf("ENTER PRESSED\n");
+	*flag = DONE;
+    }
+
+    return input + offset;
 }
 
 void C$_Putline(int fildes, const char line[])
@@ -58,8 +73,7 @@ int C$_Parse(const char input[], char ** arglist, unsigned max)
 	for(starti = i; input[i] != ' ' && input[i] != '\0' && input[i] != '\n'; i++)
 	    ;
 
-	// if it is larger than 0, copy the string into the arg list
-       	
+	// if it is larger than 0, copy the string into the arg list       	
 	if ((span = i - starti) > 0)
 	{
 	    arglist[n] = (char *) malloc(sizeof(char) * (span + 1));

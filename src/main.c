@@ -13,24 +13,46 @@ int main(int argc, char * argv[])
     char * argbuffer[8];
     memset(argbuffer, '\0', sizeof(char*) * 8);
     memset(eargv, '\0', sizeof(char *) * 8);
-    ssize_t size = 1;
+    ssize_t size = 0;
+    // ssize
 
     int numArgs;
+    enum rflag flag = WAIT;
 
     C$_Prompt();
-    while (C$_Getline(buffer, C$_BUFFER_SIZE) > 0)
+    while (1)
     {
+	size = 0;
+	flag = WAIT;
+	while (flag != DONE)
+	{
+	    size = (C$_Getline(buffer, C$_BUFFER_SIZE, size, &flag));
+	    C$_Putline(STDOUT_FILENO, "");
+	}
+	if (size == 0)
+	{
+	    printf("AS EXPECTED\n");
+	    break;
+	}
+	
+//	buffer[size] = '\0';
 
+	printf("input buffer: %s", buffer);
 
 	numArgs = C$_Parse(buffer, argbuffer, size);
-
+	
+	
 	int i;
 	for (i = 0; i < numArgs; i++)
 	{
 	    eargv[i] = argbuffer[i];
 	}
 
-
+	/* debug */
+	for (i = 0; i < 8; i++)
+	{
+	    printf("%d:%s\n", i, eargv[i]);
+	}
 
 	short pid;
 	if (!(pid = fork()))
@@ -47,7 +69,6 @@ int main(int argc, char * argv[])
 	    if (rcode != 0)
 	    {
 		/* go through built-in commands */
-
 		if (strcmp ("cd", argbuffer[0]) == 0)
 		{
 		    C$_Chdir(argbuffer[1]);	
