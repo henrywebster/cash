@@ -4,7 +4,7 @@
 #include <string.h>
 #include <errno.h>
 #include <unistd.h>
-
+#include <fcntl.h>
 
 #include "cash.h"
 
@@ -50,17 +50,18 @@ void C$_Putline(int fildes, const char line[])
     write(fildes, NEW_LINE, 1);
 }
 
-int C$_Parse(const char input[], char ** arglist, unsigned max)
+int C$_Parse(const char input[], char ** arglist, unsigned max, char ** infile)
 {
-    /* go through and put space-seperated into different new array, return num words */
-
-    
+    /* go through and put space-seperated into different new array, return num words */    
     int n = 0;
 
-    int starti, i, span;
+    int starti, endi, i, span;
     starti = 0;
+    endi = 0;
     i = 0;
     span = 0;
+
+    int redirectFlag = 0;
 
     while (input[i] != '\0')
     {
@@ -68,20 +69,55 @@ int C$_Parse(const char input[], char ** arglist, unsigned max)
     	for (; input[i] == ' ' || input[i] == '\n'; i++)
 	    ;
 	// find the start and end index of the next word
-	for(starti = i; input[i] != ' ' && input[i] != '\0' && input[i] != '\n'; i++)
-	    ;
+	for(starti = i; input[i] != ' ' && input[i] != '\0' && input[i] != '\n'; i++, endi = i)
+	{	   
+	    if (input[i] == '<')
+	    {
+		endi = i;
+		i++;
+		redirectFlag = 1;
+		break;
+	    }
+	}
 
 	// if it is larger than 0, copy the string into the arg list       	
-	if ((span = i - starti) > 0)
+	if ((span = endi - starti) > 0)
+	{
+	if (redirectFlag == 1)
+	{
+	    free(*infile);
+	    *infile = (char *) malloc(sizeof(char) * (span + 1));
+	    memcpy(*infile, input + starti, span + 1);
+	    *(*infile + span) = '\0';
+	    redirectFlag = 0;
+	}
+	else
 	{
 	    arglist[n] = (char *) malloc(sizeof(char) * (span + 1));
 	    memcpy(arglist[n], input + starti, span + 1);
 	    arglist[n][span]='\0';
 	    n++;
 	}
+	}
     }    
+    
     return n;
 }
+
+int C$_Redirect(const char const * infile)
+{
+    printf("my input: %s\n", infile);
+    int fi;
+    close(STDIN_FILENO);
+    if ((fi = open(infile, O_RDONLY) == -1))
+    {
+	perror("ca$h ERROR: Cannot redirect input");
+	return -1;
+    }
+
+    return 0;
+}
+
 
 void C$_Clrbuffs(unsigned length, char ** arglist, char ** eargv)
 {// wipe the input buffers and stop memory leaks

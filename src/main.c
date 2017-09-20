@@ -11,6 +11,9 @@ int main(int argc, char * argv[])
     char buffer[C$_BUFFER_SIZE];
     char * eargv[8];
     char * argbuffer[8];
+
+    char * infile = 0;
+
     memset(argbuffer, '\0', sizeof(char*) * 8);
     memset(eargv, '\0', sizeof(char *) * 8);
     ssize_t size = 0;
@@ -33,19 +36,22 @@ int main(int argc, char * argv[])
 	    break;
 	}
 	
-
-	numArgs = C$_Parse(buffer, argbuffer, size);
-	
-	int i;
-	for (i = 0; i < numArgs; i++)
-	{
-	    eargv[i] = argbuffer[i];
-	}
+	numArgs = C$_Parse(buffer, argbuffer, size, &infile);
 
 	short pid;
 	if (!(pid = fork()))
 	{
-	    execv(argbuffer[0], eargv);
+
+	    int i;
+	    for (i = 0; argbuffer[i]; i++)
+		eargv[i] = argbuffer[i];
+
+	    // there is something in the in redirect but it can't open: abort
+	    if (infile && C$_Redirect(infile))
+		exit(0);
+	    else
+		execv(argbuffer[0], eargv);
+
 	    exit(1);
 	}
 	else
@@ -79,10 +85,14 @@ int main(int argc, char * argv[])
 		}
 		else
 		{
+		    printf("this is there: %s\n", argbuffer[0]);
 		    C$_Putline(STDERR_FILENO, "ca$h ERROR: not a file or builtin command");
 		}
 	    }
 	}
+
+	free(infile);
+	infile = 0;
 
 	C$_Prompt();
 	C$_Clrbuffs(numArgs, argbuffer, eargv);
