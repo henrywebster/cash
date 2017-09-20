@@ -22,8 +22,8 @@ ssize_t C$_Getline(char * buffer, unsigned size, ssize_t offset, enum rflag * fl
 {
     ssize_t input = read(STDIN_FILENO, buffer + offset, size);
   
-    if (offset && buffer[input + offset - 1] != '\n')
-    { // [Extra credit] CTRL-D pressed with previous input (offset != 0)
+    if (input && buffer[input + offset - 1] != '\n')
+    { // [Extra credit] CTRL-D pressed with previous input (input read != 0)
 	buffer[input + offset] = '\n';
 	input += 1;
 	C$_Putline(STDOUT_FILENO, "");
@@ -35,7 +35,7 @@ ssize_t C$_Getline(char * buffer, unsigned size, ssize_t offset, enum rflag * fl
 	*flag = DONE;
     }
 
-    return input + offset;
+    return input;
 }
 
 void C$_Putline(int fildes, const char line[])

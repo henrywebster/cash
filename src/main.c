@@ -26,7 +26,7 @@ int main(int argc, char * argv[])
 	flag = WAIT;
 	while (flag != DONE)
 	{
-	    size = (C$_Getline(buffer, C$_BUFFER_SIZE, size, &flag));
+	    size += (C$_Getline(buffer, C$_BUFFER_SIZE, size, &flag));
 	}
 	if (size == 0)
 	{
