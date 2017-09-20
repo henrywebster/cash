@@ -27,31 +27,19 @@ int main(int argc, char * argv[])
 	while (flag != DONE)
 	{
 	    size = (C$_Getline(buffer, C$_BUFFER_SIZE, size, &flag));
-	    C$_Putline(STDOUT_FILENO, "");
 	}
 	if (size == 0)
 	{
-	    printf("AS EXPECTED\n");
 	    break;
 	}
 	
-//	buffer[size] = '\0';
-
-	printf("input buffer: %s", buffer);
 
 	numArgs = C$_Parse(buffer, argbuffer, size);
-	
 	
 	int i;
 	for (i = 0; i < numArgs; i++)
 	{
 	    eargv[i] = argbuffer[i];
-	}
-
-	/* debug */
-	for (i = 0; i < 8; i++)
-	{
-	    printf("%d:%s\n", i, eargv[i]);
 	}
 
 	short pid;
@@ -68,8 +56,12 @@ int main(int argc, char * argv[])
 		;
 	    if (rcode != 0)
 	    {
+		if (size == 1)
+		{
+		    // user just pressed enter, ignore
+		}
 		/* go through built-in commands */
-		if (strcmp ("cd", argbuffer[0]) == 0)
+		else if (strcmp ("cd", argbuffer[0]) == 0)
 		{
 		    C$_Chdir(argbuffer[1]);	
 		}
@@ -95,6 +87,8 @@ int main(int argc, char * argv[])
 	C$_Prompt();
 	C$_Clrbuffs(numArgs, argbuffer, eargv);
     }
+    C$_Putline(STDOUT_FILENO, "");
+    
 
     return 0;
 }

@@ -22,18 +22,16 @@ ssize_t C$_Getline(char * buffer, unsigned size, ssize_t offset, enum rflag * fl
 {
     ssize_t input = read(STDIN_FILENO, buffer + offset, size);
   
-  //printf("%u\n", buffer[input + offset - 1]);
-    if (buffer[input + offset - 1] != '\n')
-       {
+    if (offset && buffer[input + offset - 1] != '\n')
+    { // [Extra credit] CTRL-D pressed with previous input (offset != 0)
 	buffer[input + offset] = '\n';
 	input += 1;
-//	printf("CTRL-D PRESSED\n");
+	C$_Putline(STDOUT_FILENO, "");
 	*flag = WAIT;
     }
     else
-    {
+    { // [Extra credit] ENTER or CTRL-D with no previous input pressed
 	buffer[input + offset] = '\0';
-//	printf("ENTER PRESSED\n");
 	*flag = DONE;
     }
 
@@ -98,28 +96,31 @@ void C$_Clrbuffs(unsigned length, char ** arglist, char ** eargv)
 }
 
 /* builtin functions */
-int C$_Chdir(const char* dirname){
-
-    if(chdir(dirname) == -1){
-    	perror("CD Ca$h Error");
+int C$_Chdir(const char* dirname)
+{
+    int val = chdir(dirname);
+    if(val == -1){
+    	perror("ca$h: ERROR chdir");
     }
-    return chdir(dirname);
+    return val;
 }
 
 int C$_Link(const char* input, const char* lnk)
 {
-	if(link(input, lnk) == -1)
-	{
-	    perror("ca$h: ERROR link");
-	}
-	return link(input, lnk);
+    int val = link(input, lnk);
+    if(val == -1)
+    {
+	perror("ca$h: ERROR link");
+    }
+    return val;
 }
 	    
 int C$_Remove(const char* input)
 {
-	if (remove(input) == -1)
-	{
-		perror("ca$h ERROR remove");
-	}
-	return remove(input);
+    int val = remove(input);
+    if (val == -1)
+    {
+	perror("ca$h ERROR remove");
+    }
+    return val;
 }
