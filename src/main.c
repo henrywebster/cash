@@ -93,7 +93,7 @@ int main(int argc, char * argv[])
 		}
 		else
 		{
-		    C$_Putline(STDERR_FILENO, "ca$h ERROR: not a file or builtin command");
+		    C$_Putline(STDERR_FILENO, "ca$h ERROR: failed external or built-in command");
 		}
 	    }
 	}

@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <dirent.h>
 #include <string.h>
 #include <errno.h>
 #include <unistd.h>
@@ -13,9 +12,9 @@ const char * NEW_LINE = "\n";
 
 void C$_Prompt(void)
 {
-    #ifndef NO_PROMPT
+#ifndef NO_PROMPT
     write(STDOUT_FILENO, C$_PROMPT_TEXT, C$_PROMPT_SIZE);
-    #endif
+#endif
 }
 
 ssize_t C$_Getline(char * buffer, unsigned size, ssize_t offset, enum rflag * flag)
@@ -53,13 +52,11 @@ void C$_Putline(int fildes, const char line[])
 int C$_Parse(const char input[], char ** arglist, unsigned max, char ** infile, char ** outfile, enum rmode * mode)
 {
     /* go through and put space-seperated into different new array, return num words */
-    int n = 0;
-
-    int starti, endi, i, span;
+    int starti, i, span, n;
     starti = 0;
-    endi = 0;
     i = 0;
     span = 0;
+    n = 0;
 
     int inflag = 0;
     int outflag = 0;
@@ -73,12 +70,12 @@ int C$_Parse(const char input[], char ** arglist, unsigned max, char ** infile, 
     	for (; input[i] == ' ' || input[i] == '\n' || input[i] == '\t'; i++)
 	    ;
 	// find the start and end index of the next word
-	for(starti = i; input[i] != '<' && input[i] != '>' && input[i] != ' ' && input[i] != '\0' && input[i] != '\n' && input[i] != '\t'; i++, endi = i)
+	for(starti = i; input[i] != '<' && input[i] != '>' && input[i] != ' ' && input[i] != '\0' && input[i] != '\n' && input[i] != '\t'; i++)
 	    ;
 
 
 	// if it is larger than 0, copy the string into the arg list       	
-	if ((span = endi - starti) > 0)
+	if ((span = i - starti) > 0)
 	{
 	if (inflag == 1)
 	{
@@ -103,11 +100,11 @@ int C$_Parse(const char input[], char ** arglist, unsigned max, char ** infile, 
 	}
 	}
 
+	/* handle redirection characters */
 	if (input[i] == '<')
 	{
 	    if (inflag == -1)
 		return -1;
-	    endi = i;
 	    i++;
 	    inflag = 1;
 	}
@@ -115,7 +112,6 @@ int C$_Parse(const char input[], char ** arglist, unsigned max, char ** infile, 
 	{
 	    if (outflag == -1)
 		return -1;
-	    endi = i;
 	    i++;
 	    if (input[i] == '>')
 	    {	
@@ -129,6 +125,7 @@ int C$_Parse(const char input[], char ** arglist, unsigned max, char ** infile, 
 	}
     }    
 
+    /* verify that if there was a redirection, there was a file to redirect to */
     if (inflag != 0 && *infile == 0)
 	return -1;
 
@@ -140,9 +137,9 @@ int C$_Parse(const char input[], char ** arglist, unsigned max, char ** infile, 
 
 int C$_Redirect(const char const * infile, const char const * outfile, const enum rmode mode)
 {
-    printf("my input: %s\n", infile);
     int fi, flags;
 
+    // default flags
     flags = O_CREAT | O_WRONLY;
     
     if (infile)
