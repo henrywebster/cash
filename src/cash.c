@@ -50,7 +50,7 @@ void C$_Putline(int fildes, const char line[])
     write(fildes, NEW_LINE, 1);
 }
 
-int C$_Parse(const char input[], char ** arglist, unsigned max, char ** infile, char ** outfile)
+int C$_Parse(const char input[], char ** arglist, unsigned max, char ** infile, char ** outfile, enum rmode * mode)
 {
     /* go through and put space-seperated into different new array, return num words */
     int n = 0;
@@ -112,6 +112,14 @@ int C$_Parse(const char input[], char ** arglist, unsigned max, char ** infile, 
 	{
 	    endi = i;
 	    i++;
+	    if (input[i] == '>')
+	    {	
+		i++;
+		*mode = APPEND;
+	    }
+	    else
+		*mode = QUASH;
+	    
 	    outflag = 1;
 	}
     }    
@@ -119,27 +127,34 @@ int C$_Parse(const char input[], char ** arglist, unsigned max, char ** infile, 
     return n;
 }
 
-int C$_Redirect(const char const * infile, const char const * outfile)
+int C$_Redirect(const char const * infile, const char const * outfile, const enum rmode mode)
 {
     printf("my input: %s\n", infile);
-    int fi;
+    int fi, flags;
+
+    flags = O_CREAT | O_WRONLY;
+    
     if (infile)
     {
-    close(STDIN_FILENO);
-    if ((fi = open(infile, O_RDONLY) == -1))
-    {
-	perror("ca$h ERROR: Cannot redirect input");
-	return -1;
-    }
+	close(STDIN_FILENO);
+	if ((fi = open(infile, O_RDONLY) == -1))
+	{
+	    perror("ca$h ERROR: Cannot redirect input");
+	    return -1;
+	}
     }
     if (outfile)
     {
-    close(STDOUT_FILENO);
-    if ((fi = open(outfile, O_CREAT | O_WRONLY, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH) == -1))
-    {
-	perror("ca$h ERROR: Cannot redirect output");
-	return -1;
-    }
+	close(STDOUT_FILENO);
+	if (mode == APPEND)
+	    flags |= O_APPEND;
+	else
+	    flags |= O_TRUNC;
+	if ((fi = open(outfile, flags, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH) == -1))
+	{
+	    perror("ca$h ERROR: Cannot redirect output");
+	    return -1;
+	}
     }
     return 0;
 }

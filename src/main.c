@@ -22,6 +22,7 @@ int main(int argc, char * argv[])
 
     int numArgs;
     enum rflag flag = WAIT;
+    enum rmode mode = QUASH;
 
     C$_Prompt();
     while (1)
@@ -37,11 +38,8 @@ int main(int argc, char * argv[])
 	    break;
 	}
 	
-	numArgs = C$_Parse(buffer, argbuffer, size, &infile, &outfile);
+	numArgs = C$_Parse(buffer, argbuffer, size, &infile, &outfile, &mode);
 
-	int j = 0;
-	for (; j < 8; j++)
-	    printf("%d %s\n", j, argbuffer[j]);
 
 	short pid;
 	if (!(pid = fork()))
@@ -52,7 +50,7 @@ int main(int argc, char * argv[])
 		eargv[i] = argbuffer[i];
 
 	    // there is something in the in redirect but it can't open: abort
-	    if ((infile || outfile) && C$_Redirect(infile, outfile))
+	    if ((infile || outfile) && C$_Redirect(infile, outfile, mode))
 		exit(0);
 	    else
 		execv(argbuffer[0], eargv);
@@ -90,7 +88,6 @@ int main(int argc, char * argv[])
 		}
 		else
 		{
-		    printf("this is there: %s\n", argbuffer[0]);
 		    C$_Putline(STDERR_FILENO, "ca$h ERROR: not a file or builtin command");
 		}
 	    }
