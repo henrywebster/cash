@@ -12,10 +12,11 @@ int main(int argv, char * argc[])
 
     int numArgs;
 
-    while (size > 0)
+    C$_Prompt();
+    while (C$_Getline(buffer, C$_BUFFER_SIZE) > 0)
     {
-	C$_Prompt();
-	size = C$_Getline(buffer, C$_BUFFER_SIZE);
+
+
 	numArgs = C$_Parse(buffer, argbuffer, size);
 	if(strcmp ("ls", argbuffer[0])==0){
 		C$_LS(argbuffer[1]);
@@ -43,6 +44,7 @@ int main(int argv, char * argc[])
 	    printf("%p: %s\n", argbuffer[i], argbuffer[i]);
 	}*/
 
+	C$_Prompt();
 	C$_ClearArgs(argbuffer, numArgs);
     }
 

@@ -13,7 +13,7 @@ const char * NEW_LINE = "\n";
 
 void C$_Prompt(void)
 {
-	#ifndef NO_PROMPT
+    #ifndef NO_PROMPT
     write(STDOUT_FILENO, C$_PROMPT_TEXT, C$_PROMPT_SIZE);
     #endif
 }
