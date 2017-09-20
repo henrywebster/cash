@@ -9,14 +9,14 @@
 int main(int argc, char * argv[])
 {
     char buffer[C$_BUFFER_SIZE];
-    char * eargv[8];
-    char * argbuffer[8];
+    char * eargv[C$_MAX_ARGS];
+    char * argbuffer[C$_MAX_ARGS];
 
     char * infile = 0;
     char * outfile = 0;
 
-    memset(argbuffer, '\0', sizeof(char*) * 8);
-    memset(eargv, '\0', sizeof(char *) * 8);
+    memset(argbuffer, '\0', sizeof(char*) * C$_MAX_ARGS);
+    memset(eargv, '\0', sizeof(char *) * C$_MAX_ARGS);
     ssize_t size = 0;
     // ssize
 
@@ -38,7 +38,12 @@ int main(int argc, char * argv[])
 	    break;
 	}
 	
-	numArgs = C$_Parse(buffer, argbuffer, size, &infile, &outfile, &mode);
+	if ((numArgs = C$_Parse(buffer, argbuffer, size, &infile, &outfile, &mode)) == -1)
+	{
+	    C$_Putline(STDERR_FILENO, "ca$h ERROR: Redirection error");
+	}
+	else
+	{
 
 
 	short pid;
@@ -92,16 +97,16 @@ int main(int argc, char * argv[])
 		}
 	    }
 	}
-
+	}
 	free(infile);
 	infile = 0;
 
 	free(outfile);
 	outfile = 0;
 
+    	C$_Clrbuffs(C$_MAX_ARGS, argbuffer, eargv);
 	C$_Prompt();
-	C$_Clrbuffs(numArgs, argbuffer, eargv);
-    }
+	}
     C$_Putline(STDOUT_FILENO, "");
     
 

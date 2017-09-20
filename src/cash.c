@@ -64,6 +64,9 @@ int C$_Parse(const char input[], char ** arglist, unsigned max, char ** infile, 
     int inflag = 0;
     int outflag = 0;
 
+    free(*infile);
+    free(*outfile);
+
     while (input[i] != '\0')
     {
 	// skip over spaces and newlines
@@ -79,7 +82,6 @@ int C$_Parse(const char input[], char ** arglist, unsigned max, char ** infile, 
 	{
 	if (inflag == 1)
 	{
-	    free(*infile);
 	    *infile = (char *) malloc(sizeof(char) * (span + 1));
 	    memcpy(*infile, input + starti, span + 1);
 	    *(*infile + span) = '\0';
@@ -87,7 +89,6 @@ int C$_Parse(const char input[], char ** arglist, unsigned max, char ** infile, 
 	}
 	else if (outflag == 1)
 	{
-	    free(*outfile);
 	    *outfile = (char *) malloc(sizeof(char) * (span + 1));
 	    memcpy(*outfile, input + starti, span + 1);
 	    *(*outfile + span) = '\0';
@@ -104,12 +105,16 @@ int C$_Parse(const char input[], char ** arglist, unsigned max, char ** infile, 
 
 	if (input[i] == '<')
 	{
+	    if (inflag == -1)
+		return -1;
 	    endi = i;
 	    i++;
 	    inflag = 1;
 	}
 	if (input[i] == '>')
 	{
+	    if (outflag == -1)
+		return -1;
 	    endi = i;
 	    i++;
 	    if (input[i] == '>')
@@ -123,6 +128,12 @@ int C$_Parse(const char input[], char ** arglist, unsigned max, char ** infile, 
 	    outflag = 1;
 	}
     }    
+
+    if (inflag != 0 && *infile == 0)
+	return -1;
+
+    if (outflag != 0 && *outfile == 0)
+	return -1;
     
     return n;
 }
