@@ -1,4 +1,4 @@
-# cash
+# ca$h
 The ca$h shell is one after bash.
 
 ## TODO for rev 0.2
