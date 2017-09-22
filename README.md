@@ -5,6 +5,9 @@ The ca$h shell is one after bash.
 * Use _s copy functions
 * Refactor parser
 * Re-think function seperation of source and main file
+* Fix buffering mismatches
+* Verify no memory leakage
+* Implement &
 
 ## Overview
 The shell we made offers very basic functionality. It's methodology is as follows:
