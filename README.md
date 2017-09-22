@@ -1,6 +1,11 @@
 # cash
 The ca$h shell is one after bash.
 
+## TODO for rev 0.2
+* Use _s copy functions
+* Refactor parser
+* Re-think function seperation of source and main file
+
 ## Overview
 The shell we made offers very basic functionality. It's methodology is as follows:
 
