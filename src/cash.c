@@ -10,6 +10,11 @@
 const char * C$_PROMPT_TEXT = "ca$h> ";
 const char * NEW_LINE = "\n";
 
+/* Group 3
+ * Henry Webster and Scott Patrick
+ * Assignment 1
+ */
+
 void C$_Prompt(void)
 {
 #ifndef NO_PROMPT
