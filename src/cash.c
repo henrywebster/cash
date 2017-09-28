@@ -202,7 +202,8 @@ int C$_Link(const char* input, const char* lnk)
 	    
 int C$_Remove(const char* input)
 {
-    int val = remove(input);
+    // int val = remove(input);
+    int val = unlink(input);
     if (val == -1)
     {
 	perror("ca$h ERROR remove");
